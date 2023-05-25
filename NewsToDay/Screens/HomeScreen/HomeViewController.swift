@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class HomeViewController: UIViewController, UITextFieldDelegate  {
+class HomeViewController: UIViewController {
     
     //MARK: - Outlets
     private let collectionView = CategoriesCollection()
@@ -20,10 +20,10 @@ class HomeViewController: UIViewController, UITextFieldDelegate  {
     private let bottomTitleLabel = UILabel()
     private let seeAllButton = UIButton(type: .system)
     private let recommendedTableView = RecommendedTableView()
+    private let networkRequest = RequestsManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         setupViews()
         setupConstraints()
         randomNews()
@@ -39,7 +39,7 @@ class HomeViewController: UIViewController, UITextFieldDelegate  {
     //MARK: - Network requests
     // get news for random category
     func randomNews() {
-        RequestsManager.shared.getRandomNews { [weak self] result in
+        networkRequest.getRandomNews { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let newsData):
@@ -52,9 +52,9 @@ class HomeViewController: UIViewController, UITextFieldDelegate  {
             }
         }
     }
-
+    
     func getRecommendedNews() {
-        RequestsManager.shared.getNewsByCategory(category: CategoriesManager.shared.categories.joined(separator: ",")) { [weak self] result in
+        networkRequest.getNewsByCategory(category: CategoriesManager.shared.categories.joined(separator: ",")) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let newsData):
@@ -69,17 +69,11 @@ class HomeViewController: UIViewController, UITextFieldDelegate  {
     }
     
     //get news for keyWord specified in search field
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        searchTextField.endEditing(true)
-        searchNews(with: searchTextField.searchTextField.text)
-        return true
-    }
- 
     func searchNews(with: String?) {
         guard let query = with, !query.trimmingCharacters(in: .whitespaces).isEmpty,
               query.trimmingCharacters(in: .whitespaces).count >= 3 else {
             let alert = UIAlertController(title: "", message: "Search request must contain at least 3 symbols", preferredStyle: .alert)
-            let action = UIAlertAction(title: "Ok", style: .default) { (action) in }
+            let action = UIAlertAction(title: "Ok", style: .default)
             alert.addAction(action)
             present(alert, animated: true)
             return
@@ -103,7 +97,7 @@ class HomeViewController: UIViewController, UITextFieldDelegate  {
             }
         }
         
-        RequestsManager.shared.getNewsByKeyWord(keyWord: searchQuery) { [weak self] result in
+        networkRequest.getNewsByKeyWord(keyWord: searchQuery) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let newsData):
@@ -121,11 +115,12 @@ class HomeViewController: UIViewController, UITextFieldDelegate  {
     func setupDelegates() {
         collectionView.delegateCollectionDidSelect = self
         searchTextField.searchTextField.delegate = self
-        recommendedTableView.parentViewController = self
-        middleCollectionView.parentViewController = self
+        recommendedTableView.delegateRecommendedTableCell = self
+        middleCollectionView.delegateMiddleCollectionCell = self
     }
     
     private func setupViews() {
+        view.backgroundColor = .white
         configureToptitleLabel()
         configureTopSublabel()
         configureBottomLabel()
@@ -239,7 +234,7 @@ extension HomeViewController: CollectionDidSelectProtocol {
             randomNews()
         } else {
             print("\(categoryName)")
-            RequestsManager.shared.getNewsByCategory(category: categoryName) { [weak self] result in
+            networkRequest.getNewsByCategory(category: categoryName) { [weak self] result in
                 guard let self = self else { return }
                 switch result {
                 case .success(let newsData):
@@ -252,5 +247,26 @@ extension HomeViewController: CollectionDidSelectProtocol {
                 }
             }
         }
+    }
+}
+
+//MARK: - Middle collection and Recommended table cells delegate
+
+extension HomeViewController: RecommendedTableProtocol, MiddleCollectionProtocol {
+    func cellTapped(selectedArticle: Result) {
+        let vc = DetailedViewController()
+        vc.configureScreen(selectedArticle: selectedArticle)
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true)
+    }
+}
+
+//MARK: - Searcth text field delegate
+
+extension HomeViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        searchTextField.endEditing(true)
+        searchNews(with: searchTextField.searchTextField.text)
+        return true
     }
 }

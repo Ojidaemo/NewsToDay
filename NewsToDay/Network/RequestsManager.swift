@@ -8,10 +8,7 @@
 import Foundation
 
 final class RequestsManager {
-    
-    static let shared = RequestsManager()
-    private init() { }
-    
+
     private let session = URLSession(configuration: .default)
     
     func getRandomNews(completion: @escaping (Swift.Result<NewsModel, Error>) -> Void) {

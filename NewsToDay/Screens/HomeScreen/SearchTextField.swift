@@ -28,7 +28,7 @@ class SearchTextField: UIView {
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        commonInit()
+//        commonInit()
     }
     
     //MARK: - Functions

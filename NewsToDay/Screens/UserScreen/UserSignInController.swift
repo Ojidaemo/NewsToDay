@@ -12,21 +12,6 @@ import FirebaseAuth
 
 final class UserSignInController: UIViewController {
     
-    @MainActor
-    @Published var email = ""
-    @Published var password = ""
-    
-    func signIn() async {
-        guard !email.isEmpty, !password.isEmpty else {
-            print("no email or password found.")
-            return
-        }
-        do {
-            _ = try await AuthenticationManager.shared.createUser(email: email, password: password)
-        } catch {
-            print(error)
-        }
-    }
     
     // MARK: - Outlets
     let titleLabel = UILabel()

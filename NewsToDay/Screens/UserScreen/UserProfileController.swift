@@ -101,7 +101,6 @@ class UserProfileController: UIViewController{
         super.viewDidLoad()
         setupViews()
         setConstraints()
-        view.backgroundColor = .white
         NotificationCenter.default.addObserver(self, selector: #selector(updateLanguage), name: Notification.Name("LanguageChangedNotification"), object: nil)
     }
     
@@ -144,6 +143,7 @@ class UserProfileController: UIViewController{
     }
     
     func setupViews() {
+        view.backgroundColor = .white
         view.addSubview(languageButton)
         view.addSubview(signOutButton)
         view.addSubview(termsConditionsButton)

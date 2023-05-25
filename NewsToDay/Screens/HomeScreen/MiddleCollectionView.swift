@@ -8,12 +8,15 @@
 import UIKit
 import SnapKit
 
+protocol MiddleCollectionProtocol: AnyObject {
+    func cellTapped(selectedArticle: Result)
+}
+
 class MiddleCollectionView: UIView {
     
     var collectionView: UICollectionView!
     let bookmarksManager = BookmarksManager.shared
-    
-    weak var parentViewController: HomeViewController?
+    weak var delegateMiddleCollectionCell: MiddleCollectionProtocol?
     
     var news: [Result] = [] {
         didSet {
@@ -22,7 +25,7 @@ class MiddleCollectionView: UIView {
             }
         }
     }
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureCollection()
@@ -80,15 +83,8 @@ extension MiddleCollectionView: UICollectionViewDelegate, UICollectionViewDataSo
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let parentViewController = parentViewController else {
-                return
-            }
-
         let selectedArticle = self.news[indexPath.row]
-            let vc = DetailedViewController()
-            vc.configureScreen(selectedArticle: selectedArticle)
-            vc.modalPresentationStyle = .fullScreen
-            parentViewController.present(vc, animated: true)
-        }
+        delegateMiddleCollectionCell?.cellTapped(selectedArticle: selectedArticle)
+    }
 }
 

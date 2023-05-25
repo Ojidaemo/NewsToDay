@@ -8,9 +8,14 @@
 import UIKit
 import SnapKit
 
+protocol RecommendedTableProtocol: AnyObject {
+    func cellTapped(selectedArticle: Result)
+}
+
 class RecommendedTableView: UITableView {
    
-    weak var parentViewController: UIViewController?
+    weak var delegateRecommendedTableCell: RecommendedTableProtocol?
+    
     var news: [Result] = [] {
         didSet {
             DispatchQueue.main.async {
@@ -54,14 +59,7 @@ extension RecommendedTableView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let parentViewController = parentViewController else {
-                return
-            }
-
-        let selectedArticle = self.news[indexPath.row]
-            let vc = DetailedViewController()
-            vc.configureScreen(selectedArticle: selectedArticle)
-            vc.modalPresentationStyle = .fullScreen
-            parentViewController.present(vc, animated: true)
-        }
+                let selectedArticle = self.news[indexPath.row]
+        delegateRecommendedTableCell?.cellTapped(selectedArticle: selectedArticle)
+    }
 }

@@ -21,10 +21,9 @@ class RecommendedViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         setupViews()
         setupConstraints()
-        tableView.parentViewController = self
+        tableView.delegateRecommendedTableCell = self
     }
 
     private func configureToptitleLabel() {
@@ -36,6 +35,7 @@ class RecommendedViewController: UIViewController {
     }
 
     private func setupViews() {
+        view.backgroundColor = .white
         view.addSubview(topTitleLabel)
         configureToptitleLabel()
         view.addSubview(tableView)
@@ -53,5 +53,14 @@ class RecommendedViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15)
         ])
+    }
+}
+
+extension RecommendedViewController: RecommendedTableProtocol {
+    func cellTapped(selectedArticle: Result) {
+        let vc = DetailedViewController()
+        vc.configureScreen(selectedArticle: selectedArticle)
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true)
     }
 }

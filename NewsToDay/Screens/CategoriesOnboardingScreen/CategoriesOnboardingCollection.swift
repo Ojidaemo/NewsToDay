@@ -46,7 +46,6 @@ class CategoriesOnboardingCollection: UIView, UICollectionViewDataSource, UIColl
     
     private let reuseIdentifier = "CategoriesOnCell"
     private var collectionView: UICollectionView
-    weak var parentViewController: CategoriesVC?
     
     override init(frame: CGRect) {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
